@@ -109,6 +109,13 @@ window.SAIIGO = {
           "size": "large",
           "position": "50% 62%",
           "alt": "The adidas Run Hyper space at night, with a lit logo above a wall of running shoes"
+        },
+        {
+          "video": "images/adidas-ba-reel.mp4",
+          "poster": "adidas-ba-reel-poster",
+          "size": "reel",
+          "alt": "Race week reel from the adidas Buenos Aires Half Marathon: night runs, the Carbs Session and the adidas space",
+          "caption": "Race week reel"
         }
       ]
     },
