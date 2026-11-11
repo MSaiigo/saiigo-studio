@@ -3,6 +3,7 @@
   "use strict";
 
   var C = window.SAIIGO;
+  var IMG = window.SAIIGO_IMG || {};
   var params = new URLSearchParams(location.search);
   var host = location.hostname;
   var PREVIEW =
@@ -22,15 +23,26 @@
   function visibleProjects() {
     return C.projects.filter(function (p) { return p.status === "published" || PREVIEW; });
   }
-  function projectHref(p) { return "project.html?p=" + encodeURIComponent(p.slug) + PREVIEW_QS; }
+  // En la versión publicada (tools/build.js) cada proyecto tiene su propia página con título y vista previa.
+  function projectHref(p) {
+    return C.built ? p.slug + ".html" : "project.html?p=" + encodeURIComponent(p.slug) + PREVIEW_QS;
+  }
   function mailto() {
     return "mailto:" + C.site.email + "?subject=" + encodeURIComponent(C.site.emailSubject);
   }
+  // Solo ofrece al navegador los anchos que existen de verdad (ver tools/resize-images.sh).
   function srcset(file) {
-    return [800, 1600, 2400].map(function (w) { return "images/" + file + "-" + w + ".jpg " + w + "w"; }).join(", ");
+    var real = IMG[file] || 2400;
+    var out = [];
+    [800, 1600, 2400].forEach(function (w) {
+      if (w < real) out.push("images/" + file + "-" + w + ".jpg " + w + "w");
+    });
+    var top = real < 800 ? 800 : real < 1600 ? 1600 : 2400;
+    out.push("images/" + file + "-" + top + ".jpg " + Math.min(real, 2400) + "w");
+    return out.join(", ");
   }
 
-  /** Imagen responsive o marcador identificado si falta el archivo. */
+  /** Imagen responsive, video, o marcador identificado si falta el archivo. */
   function media(img, opts) {
     opts = opts || {};
     var cls = "media" + (opts.className ? " " + opts.className : "");
@@ -64,8 +76,8 @@
       (stacked ? "<span>SAIIGO</span><span>STUDIO</span>" : "SAIIGO STUDIO") + "</span>";
   }
 
-  function metaLine(p) {
-    return [p.client, p.location, p.year, p.type].filter(Boolean).map(esc).join('<span class="sep" aria-hidden="true">/</span>');
+  function joinMeta(parts) {
+    return parts.filter(Boolean).map(esc).join('<span class="sep" aria-hidden="true">·</span>');
   }
 
   /* ---------- header + menu ---------- */
@@ -84,7 +96,7 @@
       "</div>" +
       '<div class="mobile-menu" id="mobile-menu" hidden>' +
         '<nav aria-label="Main mobile"><ul>' + links + "</ul></nav>" +
-        '<div class="mobile-menu__foot mono"><a href="' + mailto() + '">' + esc(C.site.email) + "</a>" +
+        '<div class="mobile-menu__foot"><a href="' + mailto() + '">' + esc(C.site.email) + "</a>" +
         '<a href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">Instagram ' + esc(C.site.instagram.handle) + "</a></div>" +
       "</div>";
 
@@ -134,7 +146,7 @@
       '<p class="contact__text">' + esc(C.contact.text) + "</p>" +
       '<a class="btn btn--light" href="' + mailto() + '">' + esc(C.contact.button) + '<span aria-hidden="true">→</span></a>' +
       '<p class="contact__email"><a href="' + mailto() + '">' + esc(C.site.email) + "</a></p>" +
-      '<div class="contact__foot mono"><span>' + esc(C.site.city) + "</span>" +
+      '<div class="contact__foot"><span>' + esc(C.site.city) + "</span>" +
       '<a href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">Instagram ' + esc(C.site.instagram.handle) + "</a>" +
       "<span>© " + new Date().getFullYear() + " " + esc(C.site.name) + "</span></div>" +
       '<div class="contact__mark" aria-hidden="true">' + wordmark(true) + "</div>" +
@@ -162,32 +174,30 @@
             '<a class="work-card__link" href="' + projectHref(p) + '">' +
               '<div class="work-card__frame">' + media(p.cover, { sizes: "(min-width: 900px) 58vw, 100vw" }) +
               (p.status === "draft" ? '<span class="draft-tag mono">Draft</span>' : "") + "</div>" +
-              '<p class="meta mono"><span class="idx">' + String(i + 1).padStart(2, "0") + "</span>" + metaLine(p) + "</p>" +
-              '<h3 class="work-card__title">' + (p.client ? '<span class="work-card__client">' + esc(p.client) + " — </span>" : "") + esc(p.title) + "</h3>" +
+              '<h3 class="work-card__title">' + (p.client ? '<span class="work-card__client">' + esc(p.client) + "</span> " : "") + esc(p.title) + "</h3>" +
+              '<p class="meta mono">' + joinMeta([p.type, p.city]) + "</p>" +
               '<p class="work-card__summary">' + esc(p.summary) + "</p>" +
               '<span class="text-link">View project<span aria-hidden="true"> →</span></span>' +
             "</a></article>";
         }).join("") + "</div>"
       : '<p class="work-empty">' + esc(C.work.emptyText) + ' <a class="text-link" href="#contact">Get in touch</a></p>';
 
-    var services = C.services.items.map(function (s, i) {
+    var services = C.services.items.map(function (s) {
       return '<li class="service">' +
-        '<span class="service__num mono">' + String(i + 1).padStart(2, "0") + " /</span>" +
         '<h3 class="service__title">' + esc(s.title) + "</h3>" +
         '<div class="service__body"><p>' + esc(s.text) + "</p>" +
-        '<ul class="service__examples mono" aria-label="Examples">' +
-          s.examples.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") +
-        "</ul></div></li>";
+        '<p class="service__examples"><span class="visually-hidden">Examples: </span>' +
+          s.examples.map(esc).join('<span class="sep" aria-hidden="true"> · </span>') + "</p>" +
+        "</div></li>";
     }).join("");
 
     var a = C.about;
     document.getElementById("main").innerHTML =
       previewBar() +
-      '<section class="hero' + (h.tone === "light" ? " hero--light" : "") + '" aria-labelledby="hero-title">' + heroMedia +
+      '<section class="hero" aria-labelledby="hero-title">' + heroMedia +
         '<div class="hero__shade" aria-hidden="true"></div>' +
         '<div class="hero__content wrap">' +
-          '<div class="hero__head"><p class="hero__kicker mono">Paris — Running culture studio</p>' +
-          '<h1 class="hero__title" id="hero-title">' + esc(h.title) + "</h1></div>" +
+          '<div class="hero__head"><h1 class="hero__title" id="hero-title">' + esc(h.title) + "</h1></div>" +
           '<div class="hero__body"><p class="hero__text">' + esc(h.text) + "</p>" +
           '<div class="hero__actions">' +
             '<a class="btn btn--light" href="' + h.primary.href + '">' + esc(h.primary.label) + "</a>" +
@@ -197,22 +207,21 @@
       "</section>" +
 
       '<section class="section work" id="work" aria-labelledby="work-title"><div class="wrap">' +
-        '<header class="section__head"><p class="eyebrow mono">' + esc(C.work.eyebrow) + "</p>" +
-        '<h2 class="section__title" id="work-title">' + esc(C.work.title) + "</h2></header>" +
+        '<header class="section__head"><h2 class="section__title" id="work-title">' + esc(C.work.title) + "</h2>" +
+        (C.work.intro ? '<p class="section__intro">' + esc(C.work.intro) + "</p>" : "") + "</header>" +
         workHtml + "</div></section>" +
 
       '<section class="section services" id="services" aria-labelledby="services-title"><div class="wrap">' +
-        '<header class="section__head"><p class="eyebrow mono">' + esc(C.services.eyebrow) + "</p>" +
-        '<h2 class="section__title" id="services-title">' + esc(C.services.title) + "</h2>" +
+        '<header class="section__head"><h2 class="section__title" id="services-title">' + esc(C.services.title) + "</h2>" +
         (C.services.intro ? '<p class="section__intro">' + esc(C.services.intro) + "</p>" : "") + "</header>" +
-        '<ol class="service-list">' + services + "</ol></div></section>" +
+        '<ul class="service-list">' + services + "</ul></div></section>" +
 
       '<section class="section about" id="about" aria-labelledby="about-title"><div class="wrap about__grid">' +
         '<div class="about__media">' + media(a.image, { sizes: "(min-width: 900px) 42vw, 100vw" }) + "</div>" +
-        '<div class="about__text"><p class="eyebrow mono">' + esc(a.eyebrow) + "</p>" +
+        '<div class="about__text">' +
           '<h2 class="section__title" id="about-title">' + esc(a.title) + "</h2>" +
-          a.paragraphs.map(function (t) { return "<p>" + esc(t) + "</p>"; }).join("") +
-          '<p class="about__ig mono"><a class="text-link" href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">' +
+          a.paragraphs.map(function (t, i) { return '<p' + (i === 0 ? ' class="about__lead"' : "") + ">" + esc(t) + "</p>"; }).join("") +
+          '<p class="about__ig"><a class="text-link" href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">' +
           "Follow Saiigo on Instagram " + esc(C.site.instagram.handle) + '<span aria-hidden="true"> ↗</span></a></p>' +
         "</div></div></section>" +
       contactBlock();
@@ -232,8 +241,10 @@
       missing.map(function (m) { return "<li>" + esc(m) + "</li>"; }).join("") + "</ul></aside>";
   }
 
+  function projectName(p) { return (p.client ? p.client + " — " : "") + p.title; }
+
   function renderProject() {
-    var slug = params.get("p");
+    var slug = document.body.getAttribute("data-slug") || params.get("p");
     var list = visibleProjects();
     var p = list.filter(function (x) { return x.slug === slug; })[0];
     var main = document.getElementById("main");
@@ -241,12 +252,15 @@
     if (!p) {
       document.title = "Project not found | Saiigo Studio";
       main.innerHTML = previewBar() + '<section class="section notfound"><div class="wrap">' +
-        '<p class="eyebrow mono">404</p><h1 class="section__title">This project isn’t available.</h1>' +
-        '<p><a class="text-link" href="index.html#work">← Back to selected work</a></p></div></section>' + contactBlock();
+        '<h1 class="section__title">This project isn’t online.</h1>' +
+        '<p class="notfound__text">It may have moved or not be public yet. Here is the work that is:</p>' +
+        '<ul class="notfound__list">' + list.map(function (x) {
+          return '<li><a class="text-link" href="' + projectHref(x) + '">' + esc(projectName(x)) + "</a></li>";
+        }).join("") + "</ul></div></section>" + contactBlock();
       return;
     }
 
-    document.title = (p.client ? p.client + " — " : "") + p.title + " | Saiigo Studio";
+    document.title = projectName(p) + " | Saiigo Studio";
     var md = document.querySelector('meta[name="description"]');
     if (md) md.setAttribute("content", p.summary);
 
@@ -259,15 +273,20 @@
       return '<div><dt class="mono">' + f[0] + "</dt><dd>" + esc(f[1]) + "</dd></div>";
     }).join("");
 
+    var highlight = p.highlight
+      ? '<p class="case-highlight"><span class="case-highlight__value">' + esc(p.highlight.value) + "</span> " + esc(p.highlight.text) + "</p>"
+      : "";
+
     var metrics = p.metrics.length
       ? '<ul class="metrics">' + p.metrics.map(function (m) {
           return '<li><span class="metrics__value">' + esc(m.value) + '</span><span class="mono">' + esc(m.label) + "</span></li>";
         }).join("") + "</ul>" : "";
 
-    var gallery = p.gallery.map(function (g) {
+    // La portada ya abre la ficha: no la repetimos en la galería.
+    var gallery = p.gallery.filter(function (g) { return !(g.file && p.cover && g.file === p.cover.file); }).map(function (g) {
       return '<figure class="gallery__item gallery__item--' + esc(g.size || "large") + '">' +
-        media(g, { sizes: g.size === "wide" ? "100vw" : g.size === "small" ? "(min-width: 900px) 33vw, 100vw" : "(min-width: 900px) 66vw, 100vw" }) +
-        (g.caption ? '<figcaption class="mono">' + esc(g.caption) + "</figcaption>" : "") + "</figure>";
+        media(g, { sizes: g.size === "wide" ? "100vw" : g.size === "large" ? "(min-width: 900px) 66vw, 100vw" : "(min-width: 900px) 33vw, 100vw" }) +
+        (g.caption ? "<figcaption>" + esc(g.caption) + "</figcaption>" : "") + "</figure>";
     }).join("");
 
     var deliverables = p.deliverables.length
@@ -284,38 +303,37 @@
         media(p.cover, { className: "case-hero__media", eager: true, sizes: "100vw" }) +
         '<div class="hero__shade" aria-hidden="true"></div>' +
         '<div class="case-hero__content wrap">' +
-          '<p class="meta mono">' + metaLine(p) + "</p>" +
           '<h1 class="case-hero__title" id="case-title">' + (p.client ? "<span>" + esc(p.client) + "</span> " : "") + esc(p.title) + "</h1>" +
+          '<p class="meta mono">' + joinMeta([p.type, p.city, p.year]) + "</p>" +
         "</div>" +
         '<span class="hero__sentinel" data-header-sentinel aria-hidden="true"></span>' +
       "</section>" +
 
-      '<div class="wrap case-back"><a class="text-link mono" href="index.html' + (params.has("preview") ? "?preview" : "") + '#work">← Selected work</a></div>' +
+      '<div class="wrap case-back"><a class="text-link" href="index.html' + (params.has("preview") ? "?preview" : "") + '#work">← Selected work</a></div>' +
       (p.status === "draft" && PREVIEW ? '<div class="wrap">' + draftChecklist(p) + "</div>" : "") +
 
       '<section class="section case-intro"><div class="wrap case-intro__grid">' +
         '<dl class="facts">' + facts + "</dl>" +
-        '<div class="case-intro__text"><p class="lead">' + esc(p.context) + "</p>" + metrics + "</div>" +
+        '<div class="case-intro__text">' + highlight + '<p class="lead">' + esc(p.context) + "</p>" + metrics + "</div>" +
       "</div></section>" +
 
-      '<section class="gallery wrap" aria-label="Project images">' + gallery + "</section>" +
+      (gallery ? '<section class="gallery wrap" aria-label="Project images">' + gallery + "</section>" : "") +
 
       '<section class="section case-details"><div class="wrap case-details__grid">' +
-        '<div><h2 class="eyebrow mono">Saiigo’s role</h2><p>' + esc(p.role) + "</p></div>" +
-        (deliverables ? '<div><h2 class="eyebrow mono">Delivered</h2>' + deliverables + "</div>" : "") +
-        (credits ? '<div><h2 class="eyebrow mono">Credits</h2>' + credits + "</div>" : "") +
+        '<div><h2 class="case-details__title">What we did</h2><p>' + esc(p.role) + "</p></div>" +
+        (deliverables ? '<div><h2 class="case-details__title">Delivered</h2>' + deliverables + "</div>" : "") +
+        (credits ? '<div><h2 class="case-details__title">Credits</h2>' + credits + "</div>" : "") +
       "</div></section>" +
 
       (next && next !== p
         ? '<nav class="wrap next-project" aria-label="Next project"><a href="' + projectHref(next) + '">' +
-          '<span class="eyebrow mono">Next project</span><span class="next-project__title">' + (next.client ? esc(next.client) + " — " : "") + esc(next.title) + ' <span aria-hidden="true">→</span></span></a></nav>'
+          '<span class="next-project__label">Next project</span><span class="next-project__title">' + esc(projectName(next)) + ' <span aria-hidden="true">→</span></span></a></nav>'
         : "") +
       contactBlock();
   }
 
   /* ---------- init ---------- */
   if (page === "project") renderProject(); else renderHome();
-  if (page === "home" && C.hero.tone === "light") document.body.classList.add("hero-light");
   renderHeader(); // después del contenido, para engancharse a la portada
 
   // Videos de galería: play al entrar en pantalla, pausa al salir

@@ -39,20 +39,20 @@ window.SAIIGO = {
       "label": "Get in touch",
       "href": "#contact"
     },
-    "tone": "light",
+    "tone": "dark",
     "image": {
-      "file": "adidas-ba-shakeout",
+      "file": "paris-marathon-shoes-street",
       "mobileFile": null,
-      "position": "50% 30%",
-      "mobilePosition": "40% 30%",
-      "alt": "Runners and adidas athletes on a shakeout run in Buenos Aires",
+      "position": "50% 58%",
+      "mobilePosition": "80% 70%",
+      "alt": "Runners in New Balance shoes gathered on a Paris street at sunset before a shakeout run",
       "placeholder": "Home cover"
     },
     "video": null
   },
   "work": {
-    "eyebrow": "Selected work",
-    "title": "Previous work by Saiigo as a creator.",
+    "title": "Selected work",
+    "intro": "Race weeks, launches and community runs, made from inside the running scene.",
     "emptyText": "New case studies are on the way. Ask us for recent work."
   },
   "projects": [
@@ -63,15 +63,20 @@ window.SAIIGO = {
       "title": "Buenos Aires Half Marathon",
       "location": "Buenos Aires, Argentina",
       "year": "2026",
+      "city": "Buenos Aires",
       "type": "Race week coverage",
-      "summary": "Race week coverage by Saiigo, from the build-up to race day.",
+      "summary": "Race week content and community, from the build-up to race day.",
+      "highlight": {
+        "value": "56:51",
+        "text": "Half marathon world record, set by Yomif Kejelcha on race weekend."
+      },
       "cover": {
         "file": "adidas-ba-talk",
         "position": "50% 40%",
         "alt": "Yomif Kejelcha in conversation on stage in front of an adidas wall",
         "placeholder": "Cover"
       },
-      "context": "Race week around the adidas Buenos Aires Half Marathon, the race where Yomif Kejelcha set a new half marathon world record of 56:51. Saiigo covered the build-up from the inside: a shakeout run with adidas athletes and the local running community, a talk on stage and the moments around them, through to race day.",
+      "context": "Race week around the adidas Buenos Aires Half Marathon. Saiigo covered the build-up from the inside: a shakeout run with adidas athletes and the local running community, a talk on stage and the moments around them, through to race day.",
       "role": "Content and community — on-the-ground coverage through race week, and bringing the local running community into the build-up.",
       "deliverables": [
         "Reels",
@@ -93,22 +98,10 @@ window.SAIIGO = {
           "alt": "adidas athletes, including Yomif Kejelcha, on a shakeout run with local runners in Buenos Aires"
         },
         {
-          "file": "adidas-ba-talk",
-          "size": "small",
-          "position": "50% 50%",
-          "alt": "Yomif Kejelcha in conversation on stage during race week"
-        },
-        {
           "file": "adidas-ba-breakfast",
           "size": "small",
           "position": "50% 55%",
           "alt": "Breakfast spread at an adidas race week event"
-        },
-        {
-          "file": "adidas-ba-booth",
-          "size": "large",
-          "position": "50% 62%",
-          "alt": "The adidas Run Hyper space at night, with a lit logo above a wall of running shoes"
         },
         {
           "video": "images/adidas-ba-reel.mp4",
@@ -116,6 +109,12 @@ window.SAIIGO = {
           "size": "reel",
           "alt": "Race week reel from the adidas Buenos Aires Half Marathon: night runs, the Carbs Session and the adidas space",
           "caption": "Race week reel"
+        },
+        {
+          "file": "adidas-ba-booth",
+          "size": "large",
+          "position": "50% 62%",
+          "alt": "The adidas Run Hyper space at night, with a lit logo above a wall of running shoes"
         }
       ]
     },
@@ -123,11 +122,12 @@ window.SAIIGO = {
       "slug": "adidas-hyperboost-hyper-night-paris",
       "status": "published",
       "client": "adidas",
-      "title": "Hyperboost — Hyper Night",
+      "title": "Hyper Night",
       "location": "adidas Arena, Paris",
       "year": "2026",
-      "type": "Launch event",
-      "summary": "A night at the adidas Arena for the Paris launch of Hyperboost.",
+      "city": "Paris",
+      "type": "Hyperboost launch",
+      "summary": "Content from a team night at the adidas Arena for the Paris launch of Hyperboost.",
       "cover": {
         "file": "hyperboost-winners",
         "position": "50% 92%",
@@ -155,7 +155,7 @@ window.SAIIGO = {
       "gallery": [
         {
           "file": "hyperboost-teams",
-          "size": "large",
+          "size": "small",
           "position": "50% 50%",
           "alt": "Runners in team bandanas getting ready inside the arena"
         },
@@ -181,6 +181,7 @@ window.SAIIGO = {
       "title": "Paris Marathon Shakeout Run",
       "location": "1.75 Paris La Source, Paris",
       "year": "2026",
+      "city": "Paris",
       "type": "Shakeout run & community event",
       "summary": "A shakeout run and community gathering ahead of the Paris Marathon, with Maurten and New Balance.",
       "cover": {
@@ -282,5 +283,6 @@ window.SAIIGO = {
     "title": "Have a project in mind?",
     "text": "Tell us what you’re working on, where it’s happening and what kind of support you’re looking for.",
     "button": "Email Saiigo Studio"
-  }
+  },
+  "built": true
 };
