@@ -114,7 +114,7 @@ html.menu-open .site-header { background: var(--ink); color: var(--bone); border
 .media picture, .media__el { width: 100%; height: 100%; }
 .media__el { object-fit: cover; object-position: var(--pos, 50% 50%); }
 img.media__el { opacity: 0; transition: opacity .5s var(--ease); }
-img.media__el.is-loaded { opacity: 1; }
+img.media__el.is-loaded, .hero__media img.media__el, .case-hero__media img.media__el { opacity: 1; }
 @media (max-width: 767px) { .media__el { object-position: var(--pos-m, var(--pos, 50% 50%)); } }
 
 .media--placeholder {
@@ -169,8 +169,9 @@ img.media__el.is-loaded { opacity: 1; }
 .hero__shade {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
-    linear-gradient(to top, rgba(14, 14, 12, .82) 0%, rgba(14, 14, 12, .35) 45%, rgba(14, 14, 12, 0) 70%),
-    linear-gradient(to bottom, rgba(14, 14, 12, .45), rgba(14, 14, 12, 0) 22%);
+    linear-gradient(to top, rgba(14, 14, 12, .86) 0%, rgba(14, 14, 12, .5) 42%, rgba(14, 14, 12, 0) 72%),
+    linear-gradient(to right, rgba(14, 14, 12, .5) 0%, rgba(14, 14, 12, 0) 60%),
+    linear-gradient(to bottom, rgba(14, 14, 12, .5), rgba(14, 14, 12, 0) 22%);
 }
 .hero__content { padding-top: calc(var(--header-h) + 24px); padding-bottom: clamp(32px, 7vh, 72px); }
 .hero__title {
@@ -193,7 +194,7 @@ img.media__el.is-loaded { opacity: 1; }
 .work-grid { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); row-gap: 64px; }
 .work-card--a { grid-column: 1 / span 7; }
 .work-card--b { grid-column: 9 / span 4; margin-top: clamp(80px, 14vw, 220px); }
-.work-card:nth-child(n+3).work-card--a { grid-column: 2 / span 6; }
+.work-card:nth-child(n+3).work-card--a { grid-column: 6 / span 7; }
 .work-card__link { display: block; text-decoration: none; }
 .work-card__frame { position: relative; overflow: hidden; margin-bottom: 18px; }
 .work-card--a .media { aspect-ratio: 4 / 5; }
@@ -250,7 +251,7 @@ img.media__el.is-loaded { opacity: 1; }
 .case-hero__content { padding-top: calc(var(--header-h) + 24px); padding-bottom: clamp(28px, 6vh, 64px); }
 .case-hero .meta { color: var(--bone-dim); margin-top: 18px; }
 .case-hero__title { font-size: clamp(40px, 7vw, 104px); line-height: .98; letter-spacing: -.045em; font-weight: 500; max-width: 14ch; }
-.case-hero__title span { display: block; color: rgba(243, 240, 233, .66); }
+.case-hero__title span { display: block; color: rgba(243, 240, 233, .8); }
 .case-back { padding-top: 24px; }
 .case-back a { font-size: 15px; }
 
@@ -264,7 +265,7 @@ img.media__el.is-loaded { opacity: 1; }
 .facts dt, .credits dt { color: var(--stone); text-transform: uppercase; letter-spacing: .06em; }
 .facts dd { font-size: 16px; }
 .case-intro__text { grid-column: 5 / span 8; }
-.lead { font-size: clamp(22px, 2.4vw, 34px); line-height: 1.25; letter-spacing: -.02em; max-width: 30ch; }
+.lead { font-size: clamp(22px, 2.4vw, 34px); line-height: 1.3; letter-spacing: -.02em; max-width: 30ch; }
 .case-highlight {
   margin-bottom: clamp(32px, 4vw, 56px); padding-bottom: clamp(24px, 3vw, 40px); border-bottom: 1px solid var(--line);
   font-size: clamp(18px, 1.6vw, 22px); line-height: 1.4; color: var(--stone); max-width: 36ch;
@@ -322,8 +323,8 @@ img.media__el.is-loaded { opacity: 1; }
 }
 @media (max-width: 767px) {
   .hero { display: grid; grid-template-rows: min(66svh, 600px) auto; align-items: stretch; min-height: 0; background: var(--bone); color: var(--ink); }
-  .hero__media, .hero__shade { grid-row: 1; grid-column: 1; position: relative; inset: auto; }
-  .hero__shade { background: linear-gradient(to top, rgba(14, 14, 12, .78) 0%, rgba(14, 14, 12, .2) 50%, rgba(14, 14, 12, 0) 70%),
+  .hero > .hero__media, .hero > .hero__shade { grid-row: 1; grid-column: 1; position: relative; inset: auto; }
+  .hero > .hero__shade { background: linear-gradient(to top, rgba(14, 14, 12, .8) 0%, rgba(14, 14, 12, .2) 50%, rgba(14, 14, 12, 0) 70%),
     linear-gradient(to bottom, rgba(14, 14, 12, .45), rgba(14, 14, 12, 0) 24%); }
   .hero__content { display: contents; }
   .hero__head { grid-row: 1; grid-column: 1; align-self: end; padding: 0 var(--gutter) 22px; color: var(--bone); }

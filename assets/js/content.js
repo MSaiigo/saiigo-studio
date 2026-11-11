@@ -185,15 +185,14 @@ window.SAIIGO = {
       "type": "Shakeout run & community event",
       "summary": "A shakeout run and community gathering ahead of the Paris Marathon, with Maurten and New Balance.",
       "cover": {
-        "file": "paris-marathon-shoes-street",
-        "position": "50% 60%",
-        "mobilePosition": "62% 60%",
-        "alt": "Runners in New Balance Ellipse shoes gathered on a Paris street at sunset before the shakeout run"
+        "file": "paris-marathon-crew",
+        "position": "50% 45%",
+        "mobilePosition": "45% 50%",
+        "alt": "Runners tying on matching bandanas inside the hotel before the shakeout run"
       },
       "context": "A shakeout run ahead of the Paris Marathon with Maurten and New Balance, hosted by Saiigo Studio at 1.75 Paris La Source. The community came together to try Maurten fuel and the New Balance Ellipse, tied on matching bandanas and headed out for an easy run through the city, then came back to share food and drinks.",
       "role": "Host — bringing the community together, running the event on site and the shakeout run.",
       "deliverables": [
-        "Reel",
         "Photo coverage"
       ],
       "metrics": [],
@@ -209,10 +208,10 @@ window.SAIIGO = {
       ],
       "gallery": [
         {
-          "file": "paris-marathon-crew",
+          "file": "paris-marathon-shoes-street",
           "size": "large",
-          "position": "50% 50%",
-          "alt": "Runners tying on matching bandanas inside the hotel before the shakeout run"
+          "position": "50% 60%",
+          "alt": "Runners in New Balance Ellipse shoes gathered on a Paris street at sunset before the shakeout run"
         },
         {
           "file": "paris-marathon-venue",

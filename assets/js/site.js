@@ -292,8 +292,9 @@
     var deliverables = p.deliverables.length
       ? "<ul>" + p.deliverables.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>"
       : (PREVIEW ? '<p class="pending mono">To confirm</p>' : "");
-    var credits = p.credits.length
-      ? '<dl class="credits">' + p.credits.map(function (c) {
+    var creditList = p.credits.filter(function (c) { return !(c.role === "Client" && c.name === p.client); });
+    var credits = creditList.length
+      ? '<dl class="credits">' + creditList.map(function (c) {
           return '<div><dt class="mono">' + esc(c.role) + "</dt><dd>" + esc(c.name) + "</dd></div>";
         }).join("") + "</dl>"
       : (PREVIEW ? '<p class="pending mono">To confirm</p>' : "");
@@ -337,7 +338,8 @@
   renderHeader(); // después del contenido, para engancharse a la portada
 
   // Videos de galería: play al entrar en pantalla, pausa al salir
-  var vids = document.querySelectorAll("video[data-inview-play]");
+  var saveData = navigator.connection && navigator.connection.saveData;
+  var vids = saveData ? [] : document.querySelectorAll("video[data-inview-play]");
   if (vids.length && "IntersectionObserver" in window) {
     var vio = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -362,7 +364,13 @@
 
   // Si llegamos con un ancla (#contact desde una ficha), saltar después del render
   if (location.hash) {
-    var t = document.querySelector(location.hash);
-    if (t) t.scrollIntoView();
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    var jump = function () {
+      var t = document.querySelector(location.hash);
+      if (t) t.scrollIntoView({ behavior: "instant", block: "start" });
+    };
+    jump(); // el contenido ya está renderizado
+    setTimeout(jump, 60);
+    window.addEventListener("load", function () { setTimeout(jump, 0); });
   }
 })();
