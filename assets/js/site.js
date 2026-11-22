@@ -261,6 +261,9 @@
     }
 
     document.title = projectName(p) + " | Saiigo Studio";
+    // Para links viejos (project.html?p=slug): la URL canónica es la página propia del proyecto
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon && C.built) canon.setAttribute("href", new URL(p.slug + ".html", canon.href).href);
     var md = document.querySelector('meta[name="description"]');
     if (md) md.setAttribute("content", p.summary);
 
