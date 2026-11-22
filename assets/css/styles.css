@@ -113,7 +113,8 @@ html.menu-open .site-header { background: var(--ink); color: var(--bone); border
 .media { position: relative; overflow: hidden; background: #2a2925; }
 .media picture, .media__el { width: 100%; height: 100%; }
 .media__el { object-fit: cover; object-position: var(--pos, 50% 50%); }
-img.media__el { opacity: 0; transition: opacity .5s var(--ease); }
+img.media__el { transition: opacity .5s var(--ease); }
+.js img.media__el { opacity: 0; } /* sin JavaScript las fotos se ven igual */
 img.media__el.is-loaded, .hero__media img.media__el, .case-hero__media img.media__el { opacity: 1; }
 @media (max-width: 767px) { .media__el { object-position: var(--pos-m, var(--pos, 50% 50%)); } }
 

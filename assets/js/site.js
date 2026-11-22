@@ -4,15 +4,25 @@
 
   var C = window.SAIIGO;
   var IMG = window.SAIIGO_IMG || {};
-  var params = new URLSearchParams(location.search);
-  var host = location.hostname;
-  var PREVIEW =
+  // PRE: tools/build.js ejecuta este archivo en Node para escribir el HTML de cada página
+  // (texto legible sin JavaScript). En el navegador, si la página ya viene renderizada, solo se le agrega comportamiento.
+  var PRE = window.SAIIGO_PRERENDER || null;
+  var OUT = {};
+  var params = new URLSearchParams(PRE ? "" : location.search);
+  var host = PRE ? "" : location.hostname;
+  var PREVIEW = !PRE && (
     location.protocol === "file:" ||
     host === "localhost" || host === "127.0.0.1" || host === "[::1]" ||
-    params.has("preview");
+    params.has("preview"));
   var PREVIEW_QS = params.has("preview") ? "&preview" : "";
-  var page = document.body.getAttribute("data-page");
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var page = PRE ? PRE.page : document.body.getAttribute("data-page");
+  var reduceMotion = !PRE && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function setMain(html) {
+    if (PRE) { OUT.main = html; return; }
+    var m = document.getElementById("main");
+    if (!m.hasAttribute("data-prerendered")) m.innerHTML = html;
+  }
 
   /* ---------- helpers ---------- */
   function esc(s) {
@@ -86,8 +96,7 @@
     var links = C.site.nav.map(function (n) {
       return '<li><a href="' + base + n.href + '">' + esc(n.label) + "</a></li>";
     }).join("");
-    var el = document.getElementById("site-header");
-    el.innerHTML =
+    var headerHTML =
       '<div class="header__inner">' +
         '<a class="header__logo" href="' + (base || "#top") + '" aria-label="Saiigo Studio, home">' + wordmark(false) + "</a>" +
         '<nav class="header__nav" aria-label="Main"><ul>' + links + "</ul></nav>" +
@@ -99,6 +108,9 @@
         '<div class="mobile-menu__foot"><a href="' + mailto() + '">' + esc(C.site.email) + "</a>" +
         '<a href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">Instagram ' + esc(C.site.instagram.handle) + "</a></div>" +
       "</div>";
+    if (PRE) { OUT.header = headerHTML; return; }
+    var el = document.getElementById("site-header");
+    if (!el.hasAttribute("data-prerendered")) el.innerHTML = headerHTML;
 
     var btn = el.querySelector(".menu-btn");
     var menu = el.querySelector(".mobile-menu");
@@ -192,7 +204,7 @@
     }).join("");
 
     var a = C.about;
-    document.getElementById("main").innerHTML =
+    setMain(
       previewBar() +
       '<section class="hero" aria-labelledby="hero-title">' + heroMedia +
         '<div class="hero__shade" aria-hidden="true"></div>' +
@@ -224,7 +236,7 @@
           '<p class="about__ig"><a class="text-link" href="' + esc(C.site.instagram.url) + '" target="_blank" rel="noopener">' +
           "Follow Saiigo on Instagram " + esc(C.site.instagram.handle) + '<span aria-hidden="true"> ↗</span></a></p>' +
         "</div></div></section>" +
-      contactBlock();
+      contactBlock());
   }
 
   /* ---------- ficha de proyecto ---------- */
@@ -244,28 +256,28 @@
   function projectName(p) { return (p.client ? p.client + " — " : "") + p.title; }
 
   function renderProject() {
-    var slug = document.body.getAttribute("data-slug") || params.get("p");
+    var slug = PRE ? PRE.slug : (document.body.getAttribute("data-slug") || params.get("p"));
     var list = visibleProjects();
     var p = list.filter(function (x) { return x.slug === slug; })[0];
-    var main = document.getElementById("main");
-
     if (!p) {
-      document.title = "Project not found | Saiigo Studio";
-      main.innerHTML = previewBar() + '<section class="section notfound"><div class="wrap">' +
+      if (!PRE) document.title = "Project not found | Saiigo Studio";
+      setMain(previewBar() + '<section class="section notfound"><div class="wrap">' +
         '<h1 class="section__title">This project isn’t online.</h1>' +
         '<p class="notfound__text">It may have moved or not be public yet. Here is the work that is:</p>' +
         '<ul class="notfound__list">' + list.map(function (x) {
           return '<li><a class="text-link" href="' + projectHref(x) + '">' + esc(projectName(x)) + "</a></li>";
-        }).join("") + "</ul></div></section>" + contactBlock();
+        }).join("") + "</ul></div></section>" + contactBlock());
       return;
     }
 
-    document.title = projectName(p) + " | Saiigo Studio";
-    // Para links viejos (project.html?p=slug): la URL canónica es la página propia del proyecto
-    var canon = document.querySelector('link[rel="canonical"]');
-    if (canon && C.built) canon.setAttribute("href", new URL(p.slug + ".html", canon.href).href);
-    var md = document.querySelector('meta[name="description"]');
-    if (md) md.setAttribute("content", p.summary);
+    if (!PRE) {
+      document.title = projectName(p) + " | Saiigo Studio";
+      // Para links viejos (project.html?p=slug): la URL canónica es la página propia del proyecto
+      var canon = document.querySelector('link[rel="canonical"]');
+      if (canon && C.built) canon.setAttribute("href", new URL(p.slug + ".html", canon.href).href);
+      var md = document.querySelector('meta[name="description"]');
+      if (md) md.setAttribute("content", p.summary);
+    }
 
     var idx = list.indexOf(p);
     var next = list[(idx + 1) % list.length];
@@ -302,7 +314,7 @@
         }).join("") + "</dl>"
       : (PREVIEW ? '<p class="pending mono">To confirm</p>' : "");
 
-    main.innerHTML = previewBar() +
+    setMain(previewBar() +
       '<section class="case-hero" aria-labelledby="case-title">' +
         media(p.cover, { className: "case-hero__media", eager: true, sizes: "100vw" }) +
         '<div class="hero__shade" aria-hidden="true"></div>' +
@@ -333,16 +345,17 @@
         ? '<nav class="wrap next-project" aria-label="Next project"><a href="' + projectHref(next) + '">' +
           '<span class="next-project__label">Next project</span><span class="next-project__title">' + esc(projectName(next)) + ' <span aria-hidden="true">→</span></span></a></nav>'
         : "") +
-      contactBlock();
+      contactBlock());
   }
 
   /* ---------- init ---------- */
   if (page === "project") renderProject(); else renderHome();
   renderHeader(); // después del contenido, para engancharse a la portada
+  if (PRE) { PRE.out = OUT; return; }
 
   // Videos de galería: play al entrar en pantalla, pausa al salir
   var saveData = navigator.connection && navigator.connection.saveData;
-  var vids = saveData ? [] : document.querySelectorAll("video[data-inview-play]");
+  var vids = (saveData || reduceMotion) ? [] : document.querySelectorAll("video[data-inview-play]");
   if (vids.length && "IntersectionObserver" in window) {
     var vio = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
