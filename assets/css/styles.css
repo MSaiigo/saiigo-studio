@@ -371,25 +371,24 @@ img.media__el.is-loaded, .hero__media img.media__el, .case-hero__media img.media
 a.hero__caption:hover { color: var(--bone); border-color: var(--bone); }
 
 @media (min-width: 768px) {
+  /* Video a pantalla completa; título y botones encima, alineados con el header */
   .hero--reel {
-    display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 1fr auto;
-    column-gap: var(--gutter); align-items: end;
-    max-width: none;
-    /* En pantallas más anchas que --max, el contenido queda alineado con el header */
     --side: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+    display: grid; grid-template-columns: 1fr auto; align-items: end; column-gap: var(--gutter);
     padding: calc(var(--header-h) + 32px) var(--side) clamp(32px, 6vh, 64px);
     background: var(--ink);
   }
-  .hero--reel > .hero__shade { display: none; }
-  .hero--reel > .hero__media {
-    position: relative; inset: auto; z-index: auto;
-    grid-column: 9 / span 4; grid-row: 1; justify-self: end; align-self: center;
-    height: min(72svh, 780px); width: auto; aspect-ratio: 9 / 16;
+  .hero--reel > .hero__media { position: absolute; inset: 0; z-index: -2; }
+  .hero--reel > .hero__shade {
+    background:
+      linear-gradient(to top, rgba(14, 14, 12, .88) 0%, rgba(14, 14, 12, .45) 40%, rgba(14, 14, 12, .1) 70%),
+      linear-gradient(to right, rgba(14, 14, 12, .6) 0%, rgba(14, 14, 12, 0) 65%),
+      linear-gradient(to bottom, rgba(14, 14, 12, .55), rgba(14, 14, 12, 0) 22%);
   }
-  .hero--reel .hero__content { grid-column: 1 / span 8; grid-row: 1 / span 2; padding: 0; max-width: none; margin: 0; }
+  .hero--reel .hero__content { grid-column: 1; grid-row: 1; padding: 0; max-width: none; margin: 0; }
   .hero--reel .hero__title { font-size: clamp(56px, 7.8vw, 140px); line-height: .92; letter-spacing: -.055em; max-width: 10ch; }
   .hero--reel .hero__text { max-width: 40ch; margin-top: 32px; }
-  .hero--reel .hero__caption { grid-column: 9 / span 4; grid-row: 2; justify-self: end; margin-top: 14px; }
+  .hero--reel .hero__caption { grid-column: 2; grid-row: 1; justify-self: end; align-self: end; margin-bottom: 14px; }
 }
 @media (max-width: 767px) {
   .hero--reel .hero__caption {
