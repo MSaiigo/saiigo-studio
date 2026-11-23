@@ -411,14 +411,34 @@
   });
 
   // Si llegamos con un ancla (#contact desde una ficha), saltar después del render
+  // Links a secciones (#work, #contact…): scroll sin dejar el ancla en la dirección,
+  // así al recargar o volver a entrar la página abre siempre arriba de todo.
+  var cleanUrl = function () { history.replaceState(null, "", location.pathname + location.search); };
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    var id = a.getAttribute("href");
+    var t = id.length > 1 && document.querySelector(id);
+    if (!t) return;
+    e.preventDefault();
+    t.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth", block: "start" });
+    // Respaldo: si el navegador no animó el scroll, saltar directo
+    setTimeout(function () {
+      if (Math.abs(t.getBoundingClientRect().top) > 120) t.scrollIntoView({ behavior: "instant", block: "start" });
+    }, 900);
+    if (!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "-1");
+    t.focus({ preventScroll: true });
+  });
   if (location.hash) {
+    var hash = location.hash;
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     var jump = function () {
-      var t = document.querySelector(location.hash);
+      var t = document.querySelector(hash);
       if (t) t.scrollIntoView({ behavior: "instant", block: "start" });
     };
     jump(); // el contenido ya está renderizado
     setTimeout(jump, 60);
     window.addEventListener("load", function () { setTimeout(jump, 0); });
+    cleanUrl();
   }
 })();
