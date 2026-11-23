@@ -48,7 +48,12 @@ window.SAIIGO = {
       "alt": "Runners in New Balance shoes gathered on a Paris street at sunset before a shakeout run",
       "placeholder": "Home cover"
     },
-    "video": null
+    "video": {
+      "mp4": "images/hyperboost-reel.mp4",
+      "poster": "hyperboost-reel-poster",
+      "caption": "Hyper Night, adidas Arena, Paris",
+      "slug": "adidas-hyperboost-hyper-night-paris"
+    }
   },
   "work": {
     "title": "Selected work",
@@ -279,7 +284,7 @@ window.SAIIGO = {
     }
   },
   "contact": {
-    "title": "Have a project in mind?",
+    "title": "Tell us about your brief.",
     "text": "Tell us what you’re working on, where it’s happening and what kind of support you’re looking for.",
     "button": "Email Saiigo Studio"
   },

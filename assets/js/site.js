@@ -173,25 +173,39 @@
   /* ---------- home ---------- */
   function renderHome() {
     var h = C.hero;
+    // Portada con video: loop corto, mudo, sin controles (con movimiento reducido queda la imagen fija)
     var heroMedia = h.video
-      ? '<div class="media hero__media"><video class="media__el" src="' + esc(h.video.mp4) + '" muted loop playsinline ' +
-        (reduceMotion ? "" : "autoplay ") + (h.image.file ? 'poster="images/' + esc(h.image.file) + '-1600.jpg"' : "") +
+      ? '<div class="media hero__media"><video class="media__el hero__video" src="' + esc(h.video.mp4) + '" muted loop playsinline preload="auto" ' +
+        (reduceMotion ? "" : "autoplay ") + (h.video.poster ? 'poster="images/' + esc(h.video.poster) + '-1600.jpg"' : "") +
         ' aria-hidden="true"></video></div>'
       : media(h.image, { className: "hero__media", eager: true, sizes: "100vw" });
+    var heroProject = h.video && h.video.slug ? C.projects.filter(function (x) { return x.slug === h.video.slug && (x.status === "published" || PREVIEW); })[0] : null;
+    var heroCaption = h.video && h.video.caption
+      ? (heroProject
+          ? '<a class="hero__caption" href="' + projectHref(heroProject) + '">' + esc(h.video.caption) + '<span aria-hidden="true"> →</span></a>'
+          : '<p class="hero__caption">' + esc(h.video.caption) + "</p>")
+      : "";
 
     var projects = visibleProjects();
+    // Selected work como índice editorial: títulos grandes en lista y, en escritorio, una foto que cambia al pasar
     var workHtml = projects.length
-      ? '<div class="work-grid">' + projects.map(function (p, i) {
-          return '<article class="work-card work-card--' + (i % 2 ? "b" : "a") + '">' +
-            '<a class="work-card__link" href="' + projectHref(p) + '">' +
-              '<div class="work-card__frame">' + media(p.cover, { sizes: "(min-width: 900px) 58vw, 100vw" }) +
-              (p.status === "draft" ? '<span class="draft-tag mono">Draft</span>' : "") + "</div>" +
-              '<h3 class="work-card__title">' + (p.client ? '<span class="work-card__client">' + esc(p.client) + "</span> " : "") + esc(p.title) + "</h3>" +
-              '<p class="meta mono">' + joinMeta([p.type, p.city]) + "</p>" +
-              '<p class="work-card__summary">' + esc(p.summary) + "</p>" +
-              '<span class="text-link">View project<span aria-hidden="true"> →</span></span>' +
-            "</a></article>";
-        }).join("") + "</div>"
+      ? '<div class="index">' +
+          '<ol class="index__list">' + projects.map(function (p, i) {
+            return '<li class="index__row" data-index="' + i + '"' + (i === 0 ? ' data-active' : "") + ">" +
+              '<a class="index__link" href="' + projectHref(p) + '">' +
+                '<span class="index__thumb">' + media(p.cover, { sizes: "100vw" }) + "</span>" +
+                '<span class="index__title"><span class="index__client">' + esc(p.client || "") + "</span> " + esc(p.title) + "</span>" +
+                '<span class="index__meta mono">' + joinMeta([p.type, p.city, p.year]) + "</span>" +
+                '<span class="index__summary">' + esc(p.summary) + "</span>" +
+                (p.status === "draft" ? '<span class="draft-tag mono">Draft</span>' : "") +
+                '<span class="index__arrow" aria-hidden="true">→</span>' +
+              "</a></li>";
+          }).join("") + "</ol>" +
+          '<div class="index__preview" aria-hidden="true">' + projects.map(function (p, i) {
+            return '<div class="index__frame' + (i === 0 ? " is-active" : "") + '" data-index="' + i + '">' +
+              media(p.cover, { sizes: "(min-width: 900px) 36vw, 1px" }) + "</div>";
+          }).join("") + "</div>" +
+        "</div>"
       : '<p class="work-empty">' + esc(C.work.emptyText) + ' <a class="text-link" href="#contact">Get in touch</a></p>';
 
     var services = C.services.items.map(function (s) {
@@ -206,7 +220,7 @@
     var a = C.about;
     setMain(
       previewBar() +
-      '<section class="hero" aria-labelledby="hero-title">' + heroMedia +
+      '<section class="hero' + (h.video ? " hero--reel" : "") + '" aria-labelledby="hero-title">' + heroMedia +
         '<div class="hero__shade" aria-hidden="true"></div>' +
         '<div class="hero__content wrap">' +
           '<div class="hero__head"><h1 class="hero__title" id="hero-title">' + esc(h.title) + "</h1></div>" +
@@ -214,7 +228,7 @@
           '<div class="hero__actions">' +
             '<a class="btn btn--light" href="' + h.primary.href + '">' + esc(h.primary.label) + "</a>" +
             '<a class="btn btn--ghost" href="' + h.secondary.href + '">' + esc(h.secondary.label) + "</a>" +
-          "</div></div></div>" +
+          "</div></div></div>" + heroCaption +
         '<span class="hero__sentinel" data-header-sentinel aria-hidden="true"></span>' +
       "</section>" +
 
@@ -352,6 +366,24 @@
   if (page === "project") renderProject(); else renderHome();
   renderHeader(); // después del contenido, para engancharse a la portada
   if (PRE) { PRE.out = OUT; return; }
+
+  // Índice de proyectos: la foto de la derecha sigue al proyecto bajo el mouse o el foco
+  var index = document.querySelector(".index");
+  if (index) {
+    var activate = function (row) {
+      var i = row.getAttribute("data-index");
+      [].forEach.call(index.querySelectorAll(".index__row"), function (r) { r.toggleAttribute("data-active", r === row); });
+      [].forEach.call(index.querySelectorAll(".index__frame"), function (f) { f.classList.toggle("is-active", f.getAttribute("data-index") === i); });
+    };
+    [].forEach.call(index.querySelectorAll(".index__row"), function (row) {
+      row.addEventListener("mouseenter", function () { activate(row); });
+      row.addEventListener("focusin", function () { activate(row); });
+    });
+  }
+  var heroVideo = document.querySelector(".hero__video");
+  if (heroVideo && (reduceMotion || (navigator.connection && navigator.connection.saveData))) {
+    heroVideo.removeAttribute("autoplay"); heroVideo.pause();
+  }
 
   // Videos de galería: play al entrar en pantalla, pausa al salir
   var saveData = navigator.connection && navigator.connection.saveData;
