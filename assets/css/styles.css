@@ -374,7 +374,10 @@ a.hero__caption:hover { color: var(--bone); border-color: var(--bone); }
   .hero--reel {
     display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 1fr auto;
     column-gap: var(--gutter); align-items: end;
-    max-width: none; padding: calc(var(--header-h) + 32px) var(--gutter) clamp(32px, 6vh, 64px);
+    max-width: none;
+    /* En pantallas más anchas que --max, el contenido queda alineado con el header */
+    --side: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+    padding: calc(var(--header-h) + 32px) var(--side) clamp(32px, 6vh, 64px);
     background: var(--ink);
   }
   .hero--reel > .hero__shade { display: none; }
