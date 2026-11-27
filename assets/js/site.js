@@ -81,9 +81,11 @@
       "></picture></div>";
   }
 
+  // Logo: SAIIGO STUDIO con el punto cuadrado en rojo óxido
+  var dot = '<span class="wordmark__dot" aria-hidden="true"></span>';
   function wordmark(stacked) {
     return '<span class="wordmark' + (stacked ? " wordmark--stacked" : "") + '">' +
-      (stacked ? "<span>SAIIGO</span><span>STUDIO</span>" : "SAIIGO STUDIO") + "</span>";
+      (stacked ? "<span>SAIIGO</span><span>STUDIO" + dot + "</span>" : "SAIIGO STUDIO" + dot) + "</span>";
   }
 
   function joinMeta(parts) {

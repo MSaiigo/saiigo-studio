@@ -56,6 +56,11 @@ html { caret-color: var(--oxide); scrollbar-color: var(--stone) var(--bone); }
 /* ---------- wordmark ---------- */
 .wordmark { font-weight: 600; letter-spacing: .14em; font-size: 14px; line-height: 1; white-space: nowrap; }
 .wordmark--stacked { display: inline-flex; flex-direction: column; gap: .12em; }
+.wordmark__dot {
+  display: inline-block; width: .34em; height: .34em; margin-left: 0;
+  background: var(--oxide); vertical-align: baseline;
+}
+.contact__mark .wordmark__dot { opacity: .6; }
 
 /* ---------- header ---------- */
 .site-header {
